@@ -12,7 +12,7 @@ resource "random_id" "bucket_suffix" {
 
 resource "aws_s3_bucket" "assets" {
   bucket = lower("assets-${random_id.bucket_suffix.hex}")
-  acl    = "private"
+
 
   tags = {
     Name = "assets-bucket"
