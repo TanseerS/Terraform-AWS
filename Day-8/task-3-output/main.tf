@@ -7,6 +7,3 @@ resource "aws_s3_bucket" "buckets" {
     Name = each.value
   }
 }
-
-// Data source to get current AWS account ID for unique naming
-data "aws_caller_identity" "current" {}
