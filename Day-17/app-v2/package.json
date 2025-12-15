@@ -1,0 +1,15 @@
+{
+  "name": "app-v2",
+  "version": "2.0.0",
+  "description": "Version 2.0 of the Blue-Green Deployment Demo App",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}
