@@ -46,7 +46,7 @@ resource "aws_s3_bucket_policy" "allow_cloudfront" {
 })
 }
 
-resource "aws_s3_bucket_object" "object" {
+resource "aws_s3_object" "object" {
   for_each = fileset("${path.module}/www", "**/*")
 
   bucket = aws_s3_bucket.website_bucket.id
