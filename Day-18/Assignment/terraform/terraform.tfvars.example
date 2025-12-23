@@ -1,0 +1,6 @@
+# AWS Region
+aws_region = "us-east-1"
+
+# Project configuration
+project_name = "image-processor"
+environment  = "dev"

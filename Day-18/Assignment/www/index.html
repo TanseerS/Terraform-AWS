@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processor - Upload & Process Images</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ Image Processor</h1>
+            <p>Upload images, add watermarks, extract metadata, and get multiple processed variants</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <h2>Upload Image</h2>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h1.586a1 1 0 0 1 .707.293l.707.707A1 1 0 0 0 12.414 11H15m-3-3h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                        </svg>
+                        <p>Drag & drop an image here or click to browse</p>
+                        <input type="file" id="fileInput" accept="image/*" hidden>
+                        <button id="browseBtn" class="btn btn-primary">Choose File</button>
+                    </div>
+                </div>
+                <div id="fileInfo" class="file-info" style="display: none;">
+                    <p><strong>Selected:</strong> <span id="fileName"></span></p>
+                    <p><strong>Size:</strong> <span id="fileSize"></span></p>
+                </div>
+                <button id="uploadBtn" class="btn btn-success" disabled>Upload & Process</button>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Processing Results</h2>
+                <div id="metadata" class="metadata">
+                    <h3>📋 Image Metadata (EXIF)</h3>
+                    <div id="metadataContent" class="metadata-content">
+                        <p>Loading metadata...</p>
+                    </div>
+                </div>
+                <div id="processedImages" class="processed-images">
+                    <h3>🖼️ Processed Images</h3>
+                    <div id="imagesGrid" class="images-grid">
+                        <p>Processing images...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="info-section">
+                <h2>Features</h2>
+                <div class="features-grid">
+                    <div class="feature">
+                        <h3>🔒 Secure Upload</h3>
+                        <p>Direct API upload with secure processing</p>
+                    </div>
+                    <div class="feature">
+                        <h3>💧 Watermarking</h3>
+                        <p>Automatic watermark added to all processed images</p>
+                    </div>
+                    <div class="feature">
+                        <h3>📊 EXIF Extraction</h3>
+                        <p>Extract and display image metadata</p>
+                    </div>
+                    <div class="feature">
+                        <h3>🎨 Multiple Formats</h3>
+                        <p>JPEG, PNG, WebP variants with different quality levels</p>
+                    </div>
+                    <div class="feature">
+                        <h3>📏 Smart Resizing</h3>
+                        <p>Automatic resizing for large images</p>
+                    </div>
+                    <div class="feature">
+                        <h3>🖼️ Thumbnails</h3>
+                        <p>Generate preview thumbnails</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Image Processor. Built with AWS Lambda, API Gateway, and S3.</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
