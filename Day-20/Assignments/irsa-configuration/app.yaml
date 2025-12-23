@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-app-sa
+  namespace: default
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/eks-app-role"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: irsa-demo-app
+  labels:
+    app: irsa-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: irsa-demo
+  template:
+    metadata:
+      labels:
+        app: irsa-demo
+    spec:
+      serviceAccountName: my-app-sa
+      containers:
+      - name: app
+        image: amazonlinux:2
+        command:
+        - /bin/bash
+        - -c
+        - |
+          yum install -y awscli
+          echo "Testing S3 access..."
+          aws s3 ls s3://my-app-bucket/ || echo "S3 access test completed"
+          sleep 3600
