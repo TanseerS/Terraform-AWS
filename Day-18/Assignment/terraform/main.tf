@@ -1,7 +1,3 @@
-# Simple image processor with API Gateway and web frontend
-# Supports S3 uploads and direct API uploads with watermarking and EXIF extraction
-
-# Random suffix for unique resource names
 resource "random_id" "suffix" {
   byte_length = 4
 }
@@ -14,11 +10,6 @@ locals {
   api_gateway_name      = "${var.project_name}-${var.environment}-api"
 }
 
-# ============================================================================
-# S3 BUCKETS
-# ============================================================================
-
-# S3 Bucket for uploading original images (SOURCE)
 resource "aws_s3_bucket" "upload_bucket" {
   bucket = local.upload_bucket_name
 }
@@ -50,7 +41,6 @@ resource "aws_s3_bucket_public_access_block" "upload_bucket" {
   restrict_public_buckets = true
 }
 
-# S3 Bucket for processed images (DESTINATION)
 resource "aws_s3_bucket" "processed_bucket" {
   bucket = local.processed_bucket_name
 }
@@ -82,7 +72,6 @@ resource "aws_s3_bucket_public_access_block" "processed_bucket" {
   restrict_public_buckets = true
 }
 
-# Website bucket for static frontend
 resource "aws_s3_bucket" "website_bucket" {
   bucket = "${local.bucket_prefix}-website-${random_id.suffix.hex}"
 }
@@ -121,11 +110,6 @@ resource "aws_s3_bucket_website_configuration" "website_bucket" {
   }
 }
 
-# ============================================================================
-# IAM ROLES & POLICIES
-# ============================================================================
-
-# IAM role for Lambda function
 resource "aws_iam_role" "lambda_role" {
   name = "${local.lambda_function_name}-role"
 
@@ -143,7 +127,6 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-# IAM policy for Lambda function
 resource "aws_iam_role_policy" "lambda_policy" {
   name = "${local.lambda_function_name}-policy"
   role = aws_iam_role.lambda_role.id
@@ -177,10 +160,6 @@ resource "aws_iam_role_policy" "lambda_policy" {
   })
 }
 
-# ============================================================================
-# LAMBDA LAYER (Pillow + piexif)
-# ============================================================================
-
 resource "aws_lambda_layer_version" "image_layer" {
   filename            = "${path.module}/image_layer.zip"
   layer_name          = "${var.project_name}-image-layer"
@@ -188,18 +167,12 @@ resource "aws_lambda_layer_version" "image_layer" {
   description         = "Pillow and piexif libraries for image processing"
 }
 
-# ============================================================================
-# LAMBDA FUNCTION (Image Processor)
-# ============================================================================
-
-# Data source for Lambda function zip
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_file = "${path.module}/../lambda/lambda_function.py"
   output_path = "${path.module}/lambda_function.zip"
 }
 
-# Lambda function
 resource "aws_lambda_function" "image_processor" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = local.lambda_function_name
@@ -221,30 +194,22 @@ resource "aws_lambda_function" "image_processor" {
   }
 }
 
-# CloudWatch Log Group for Lambda
 resource "aws_cloudwatch_log_group" "lambda_processor" {
   name              = "/aws/lambda/${local.lambda_function_name}"
   retention_in_days = 7
 }
 
-# ============================================================================
-# API GATEWAY
-# ============================================================================
-
-# API Gateway REST API
 resource "aws_api_gateway_rest_api" "image_api" {
   name        = local.api_gateway_name
   description = "API for image upload and processing"
 }
 
-# API Gateway Resource
 resource "aws_api_gateway_resource" "upload" {
   rest_api_id = aws_api_gateway_rest_api.image_api.id
   parent_id   = aws_api_gateway_rest_api.image_api.root_resource_id
   path_part   = "upload"
 }
 
-# API Gateway Method
 resource "aws_api_gateway_method" "upload_post" {
   rest_api_id   = aws_api_gateway_rest_api.image_api.id
   resource_id   = aws_api_gateway_resource.upload.id
@@ -252,7 +217,6 @@ resource "aws_api_gateway_method" "upload_post" {
   authorization = "NONE"
 }
 
-# Lambda permission for API Gateway
 resource "aws_lambda_permission" "api_gateway" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
@@ -261,7 +225,6 @@ resource "aws_lambda_permission" "api_gateway" {
   source_arn    = "${aws_api_gateway_rest_api.image_api.execution_arn}/*/*"
 }
 
-# API Gateway Integration
 resource "aws_api_gateway_integration" "upload_integration" {
   rest_api_id             = aws_api_gateway_rest_api.image_api.id
   resource_id             = aws_api_gateway_resource.upload.id
@@ -271,7 +234,6 @@ resource "aws_api_gateway_integration" "upload_integration" {
   uri                     = aws_lambda_function.image_processor.invoke_arn
 }
 
-# API Gateway Method Response
 resource "aws_api_gateway_method_response" "upload_response" {
   rest_api_id = aws_api_gateway_rest_api.image_api.id
   resource_id = aws_api_gateway_resource.upload.id
@@ -283,7 +245,6 @@ resource "aws_api_gateway_method_response" "upload_response" {
   }
 }
 
-# API Gateway Integration Response
 resource "aws_api_gateway_integration_response" "upload_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.image_api.id
   resource_id = aws_api_gateway_resource.upload.id
@@ -295,7 +256,6 @@ resource "aws_api_gateway_integration_response" "upload_integration_response" {
   }
 }
 
-# API Gateway Deployment
 resource "aws_api_gateway_deployment" "image_api_deployment" {
   depends_on = [
     aws_api_gateway_integration.upload_integration
@@ -305,11 +265,6 @@ resource "aws_api_gateway_deployment" "image_api_deployment" {
 
 }
 
-# ============================================================================
-# S3 EVENT TRIGGER
-# ============================================================================
-
-# Lambda permission to be invoked by S3
 resource "aws_lambda_permission" "allow_s3" {
   statement_id  = "AllowExecutionFromS3"
   action        = "lambda:InvokeFunction"
@@ -318,7 +273,6 @@ resource "aws_lambda_permission" "allow_s3" {
   source_arn    = aws_s3_bucket.upload_bucket.arn
 }
 
-# S3 bucket notification to trigger Lambda
 resource "aws_s3_bucket_notification" "upload_bucket_notification" {
   bucket = aws_s3_bucket.upload_bucket.id
 

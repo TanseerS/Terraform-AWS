@@ -1,0 +1,28 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "us-east-1",
+      "source_ami": "ami-0c7217cdde317cfec",
+      "instance_type": "t2.micro",
+      "ssh_username": "ec2-user",
+      "ami_name": "custom-web-server-{{timestamp}}",
+      "tags": {
+        "Name": "custom-web-server",
+        "BuiltBy": "packer"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo yum update -y",
+        "sudo yum install -y httpd",
+        "sudo systemctl start httpd",
+        "sudo systemctl enable httpd",
+        "echo '<h1>Custom AMI built with Packer!</h1>' | sudo tee /var/www/html/index.html"
+      ]
+    }
+  ]
+}

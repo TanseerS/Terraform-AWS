@@ -1,0 +1,24 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - nginx
+  - curl
+
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head><title>Cloud-Init Demo</title></head>
+      <body>
+        <h1>Hello from cloud-init!</h1>
+        <p>Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</p>
+      </body>
+      </html>
+
+runcmd:
+  - systemctl start nginx
+  - systemctl enable nginx
+  - curl -s http://169.254.169.254/latest/meta-data/instance-id > /tmp/instance-id.txt
