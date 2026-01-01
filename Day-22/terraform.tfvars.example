@@ -1,0 +1,8 @@
+project_name = "my-rds-project"
+environment  = "dev"
+aws_region   = "us-west-2"
+db_name     = "myappdb"
+db_username = "admin"
+db_password = "YourSecurePassword123!"
+instance_type = "t2.micro"
+key_name     = "my-key-pair"
